@@ -1,0 +1,12 @@
+server:
+  port: 8080
+  read_header_timeout: 5
+  read_timeout: 10  # headers+body
+  write_timeout: 10  # response
+  idle_timeout: 60  # keep-alive
+
+log:
+  level: debug
+
+file_storage:
+  root_dir: ./.tmp/file-storage

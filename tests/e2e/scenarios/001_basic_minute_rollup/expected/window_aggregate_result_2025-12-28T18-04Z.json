@@ -1,0 +1,17 @@
+{
+  "customerId": "cus-axon",
+  "windowStart": "2025-12-28T18:04:00Z",
+  "windowSize": "minute",
+  "requestsByPath": {
+    "GET /": 4000,
+    "GET /about": 4000,
+    "GET /careers": 4000,
+    "GET /contact": 4000
+  },
+  "requestsByUserAgent": {
+    "Chrome": 4000,
+    "Firefox": 4000,
+    "Googlebot": 4000,
+    "curl": 4000
+  }
+}
