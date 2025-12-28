@@ -3,7 +3,7 @@
 
 ## Description
 
-This log analytics pipeline ingests log batches via HTTP, summarizes them into time-windowed aggregates, and stores the results for analysis. All components run locally in a single process—no distributed systems required. The solution is designed for both performance and correctness: it uses partitioned queues and worker goroutines to achieve parallelism across different time windows, while ensuring race condition prevention through partition-based single-writer guarantees and duplicate batch detection through atomic file operations that simulate S3-like behavior.
+This log analytics pipeline ingests log batches via HTTP, summarizes them into time-windowed aggregates, and stores the results for analysis. All components run locally in a single process. The solution is designed for both performance and correctness: it uses partitioned queues and worker goroutines to achieve parallelism across different time windows, while ensuring race condition prevention through partition-based single-writer guarantees and duplicate batch detection through atomic file operations that simulate S3-like behavior.
 
 ## Assumptions
 
@@ -168,20 +168,9 @@ flowchart LR
 3. **WindowAggregate (Flink)** aggregates insights using event-time processing and emits finalized window aggregates.
 4. **ClickHouse** ingests window aggregates and derives higher-level rollups (hour/day).
 
-### ClickHouse Storage Model
-I would flatten aggregate results into records before inserting them into ClickHouse. This avoids nested structures, improves insert throughput, and simplifies analytical queries.
-
-**Example records:**
-
-| customer_id | window_size | window_start           | dimension_name | dimension_value | count |
-|------------|-------------|------------------------|----------------|-----------------|-------|
-| cus-axon   | minute      | 2025-12-28T18:03:00Z   | user_agent     | Chrome          | 1240  |
-| cus-axon   | minute      | 2025-12-28T18:03:00Z   | path           | GET /api/users  | 317   |
-
 ### Late Events & Correctness
 I’m aware that late-arriving events are common in distributed systems and can be caused by retries, network delays, backpressure, or downstream failures. I don’t have a complete solution for this problem yet, and this design does not attempt to fully address it. My current thinking is that late events should be routed to a separate queue and handled through a dedicated backfill or reconciliation flow, which is outside the scope of this implementation.
 
 ## AI Tools
 - **ChatGPT**: Used for brainstorming solutions and writing documentation
 - **Cursor**: Used for writing implementation and tests
-- **My Brain**: Used for decision making and putting every piece together

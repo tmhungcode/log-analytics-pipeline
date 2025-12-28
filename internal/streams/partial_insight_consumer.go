@@ -49,7 +49,7 @@ func (consumer *partialInsightConsumer) Start(ctx context.Context) {
 		consumer.wg.Add(1)
 		go func() {
 			defer consumer.wg.Done()
-			
+
 			consumer.runPartitionWorker(ctx, partitionIndex, ch)
 		}()
 	}
@@ -69,7 +69,11 @@ func (consumer *partialInsightConsumer) runPartitionWorker(ctx context.Context, 
 			return
 		case <-consumer.stopCh:
 			return
-		case event, _ := <-ch:
+		case event, ok := <-ch:
+			if !ok {
+				// Channel closed, exit worker
+				return
+			}
 			// Handle panic recovery to prevent worker goroutine from crashing
 			func() {
 				defer func() {
@@ -93,11 +97,12 @@ func (consumer *partialInsightConsumer) runPartitionWorker(ctx context.Context, 
 					}
 				}()
 
-				ctx = consumer.logger.With().
+				requestLogger := consumer.logger.With().
 					Str(loggers.FieldPartitionId, fmt.Sprintf("%d", partitionIndex)).
 					Str(loggers.FieldRequestID, ulid.NewULID()).
-					Logger().WithContext(ctx)
-				svcError := consumer.aggregationService.Aggregate(ctx, &event)
+					Logger()
+
+				svcError := consumer.aggregationService.Aggregate(requestLogger.WithContext(ctx), &event)
 				if svcError != nil {
 					metricPartialInsightConsumedTotal.WithLabelValues(streamPartialInsight, svcError.Code).Inc()
 				} else {
