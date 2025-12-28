@@ -49,10 +49,8 @@ func (consumer *partialInsightConsumer) Start(ctx context.Context) {
 		consumer.wg.Add(1)
 		go func() {
 			defer consumer.wg.Done()
-			ctx = consumer.logger.With().
-				Str(loggers.FieldRequestID, ulid.NewULID()).
-				Str(loggers.FieldPartitionId, fmt.Sprintf("%d", partitionIndex)).Logger().WithContext(ctx)
-			consumer.runPartitionWorker(ctx, ch)
+			
+			consumer.runPartitionWorker(ctx, partitionIndex, ch)
 		}()
 	}
 }
@@ -63,7 +61,7 @@ func (consumer *partialInsightConsumer) Stop() {
 	consumer.wg.Wait()
 }
 
-func (consumer *partialInsightConsumer) runPartitionWorker(ctx context.Context, ch <-chan events.PartialInsightEvent) {
+func (consumer *partialInsightConsumer) runPartitionWorker(ctx context.Context, partitionIndex int, ch <-chan events.PartialInsightEvent) {
 
 	for {
 		select {
@@ -95,6 +93,10 @@ func (consumer *partialInsightConsumer) runPartitionWorker(ctx context.Context, 
 					}
 				}()
 
+				ctx = consumer.logger.With().
+					Str(loggers.FieldPartitionId, fmt.Sprintf("%d", partitionIndex)).
+					Str(loggers.FieldRequestID, ulid.NewULID()).
+					Logger().WithContext(ctx)
 				svcError := consumer.aggregationService.Aggregate(ctx, &event)
 				if svcError != nil {
 					metricPartialInsightConsumedTotal.WithLabelValues(streamPartialInsight, svcError.Code).Inc()
