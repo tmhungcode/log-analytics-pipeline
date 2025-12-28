@@ -5,8 +5,15 @@ server:
   write_timeout: 10  # response
   idle_timeout: 60  # keep-alive
 
+# Logging configuration
 log:
+  # Log level: debug, info, warn, error (required)
   level: debug
 
 file_storage:
   root_dir: ./.tmp/file-storage
+
+# Aggregation configuration
+aggregation:
+  # Window size for aggregation: "minute" or "hour" (required)
+  window_size: minute

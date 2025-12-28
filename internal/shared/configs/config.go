@@ -5,6 +5,7 @@ type Config struct {
 	Server      ServerConfig      `mapstructure:"server" validate:"required"`
 	Log         LogConfig         `mapstructure:"log" validate:"required"`
 	FileStorage FileStorageConfig `mapstructure:"file_storage" validate:"required"`
+	Aggregation AggregationConfig `mapstructure:"aggregation" validate:"required"`
 }
 
 // ServerConfig holds server-related configuration.
@@ -24,4 +25,9 @@ type LogConfig struct {
 // FileStorageConfig holds file storage configuration.
 type FileStorageConfig struct {
 	RootDir string `mapstructure:"root_dir" validate:"required"`
+}
+
+// AggregationConfig holds aggregation configuration.
+type AggregationConfig struct {
+	WindowSize string `mapstructure:"window_size" validate:"required,oneof=minute hour"`
 }

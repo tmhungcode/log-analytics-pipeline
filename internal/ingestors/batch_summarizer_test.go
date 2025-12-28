@@ -12,7 +12,7 @@ import (
 func TestBatchSummarizer_Summarize_MultipleMinutes(t *testing.T) {
 	t.Parallel()
 
-	summarizer := NewMinuteBatchSummarizer()
+	summarizer := NewBatchSummarizer(models.WindowMinute)
 
 	// Create entries spanning 2 minutes
 	minute1 := time.Date(2025, 12, 21, 14, 21, 0, 0, time.UTC)
@@ -94,7 +94,7 @@ func TestBatchSummarizer_Summarize_MultipleMinutes(t *testing.T) {
 func TestBatchSummarizer_Summarize_UserAgentParseFails(t *testing.T) {
 	t.Parallel()
 
-	summarizer := NewMinuteBatchSummarizer()
+	summarizer := NewBatchSummarizer(models.WindowMinute)
 
 	unknownUA := "SomeUnknownUserAgent/1.0"
 	minute := time.Date(2025, 12, 21, 14, 21, 0, 0, time.UTC)
@@ -137,7 +137,7 @@ func TestBatchSummarizer_Summarize_UserAgentParseFails(t *testing.T) {
 func TestBatchSummarizer_Summarize_MethodNormalization(t *testing.T) {
 	t.Parallel()
 
-	summarizer := NewMinuteBatchSummarizer()
+	summarizer := NewBatchSummarizer(models.WindowMinute)
 
 	minute := time.Date(2025, 12, 21, 14, 21, 0, 0, time.UTC)
 	batch := &models.LogBatch{
@@ -186,7 +186,7 @@ func TestBatchSummarizer_Summarize_MethodNormalization(t *testing.T) {
 func TestBatchSummarizer_Summarize_UTCTimezone(t *testing.T) {
 	t.Parallel()
 
-	summarizer := NewMinuteBatchSummarizer()
+	summarizer := NewBatchSummarizer(models.WindowMinute)
 
 	// Create entries with the same UTC time but different timezones
 	utcTime := time.Date(2025, 12, 21, 14, 21, 30, 0, time.UTC)

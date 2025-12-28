@@ -19,9 +19,9 @@ type batchSummarizer struct {
 	windowSize models.WindowSize
 }
 
-func NewMinuteBatchSummarizer() BatchSummarizer {
+func NewBatchSummarizer(windowSize models.WindowSize) BatchSummarizer {
 	return &batchSummarizer{
-		windowSize: models.WindowMinute,
+		windowSize: windowSize,
 	}
 }
 

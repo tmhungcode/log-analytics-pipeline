@@ -12,6 +12,17 @@ const (
 	WindowHour   WindowSize = "hour"
 )
 
+func NewWindowSizeFromString(windowSize string) (WindowSize, error) {
+	switch windowSize {
+	case "minute":
+		return WindowMinute, nil
+	case "hour":
+		return WindowHour, nil
+	default:
+		return "", fmt.Errorf("invalid window size: %s", windowSize)
+	}
+}
+
 func (w WindowSize) Duration() time.Duration {
 	switch w {
 	case WindowMinute:

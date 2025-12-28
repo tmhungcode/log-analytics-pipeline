@@ -15,6 +15,7 @@ import (
 	"log-analytics/internal/shared/loggers"
 	"log-analytics/internal/stores"
 	"log-analytics/internal/streams"
+	"log-analytics/internal/models"
 )
 
 // App holds all application dependencies and manages lifecycle.
@@ -49,6 +50,10 @@ func New(config *configs.Config) (*App, error) {
 	partialInsightQueue := streams.NewPartitionedQueue[events.PartialInsightEvent]()
 
 	// Initialize aggregation service
+	windowSize, err := models.NewWindowSizeFromString(config.Aggregation.WindowSize)
+	if err != nil {
+		return nil, fmt.Errorf("failed to initialize window size: %w", err)
+	}
 	aggregateResultStore := stores.NewAggregateResultStore(fileStorage)
 	aggregateRolluper := aggregators.NewAggregateRolluper()
 	aggregationService := aggregators.NewAggregationService(aggregateRolluper, aggregateResultStore)
@@ -57,7 +62,7 @@ func New(config *configs.Config) (*App, error) {
 
 	// Initialize ingestionService
 	batchStore := stores.NewLogBatchStore(fileStorage)
-	batchSummarizer := ingestors.NewMinuteBatchSummarizer()
+	batchSummarizer := ingestors.NewBatchSummarizer(windowSize)
 	partialInsightProducer := streams.NewPartialInsightProducer(partialInsightQueue)
 	ingestionService := ingestors.NewIngestionService(batchSummarizer, batchStore, partialInsightProducer)
 
